@@ -1,2 +1,2 @@
 # PetsApp
-Pets app
+Pets app v1.0
