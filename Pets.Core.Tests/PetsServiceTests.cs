@@ -67,7 +67,7 @@ namespace Pets.Core.Tests
         }
 
         [TestMethod]
-        public void when_petapiclient_returns_null_pets_array_service_should_hanle_it_without_any_error()
+        public void when_petapiclient_returns_null_pets_array_service_should_handle_it_without_any_error()
         {
             // arrange
             var petApiClient = Substitute.For<IPetsApiClient>();
@@ -155,6 +155,24 @@ namespace Pets.Core.Tests
                 outputer.Output("orange");
                 outputer.Output("Pineapple");
             });
+        }
+
+        [TestMethod]
+        public void when_data_has_null_or_empty_or_just_spaces_gender_property_CatsByGender_should_handle_it_with_no_error_and_ignore_that_owner()
+        {
+            // arrange
+            var petApiClient = Substitute.For<IPetsApiClient>();
+            var outputer = Substitute.For<IOutputer>();
+
+            var servire = new PetsService(apiendpoint, outputer, petApiClient);
+
+            petApiClient.GetAllPetsOwners(apiendpoint).Returns(Task.FromResult(new PetsApiResponse { Success = true, Result = "[{\"name\":\"Fred\",\"gender\":\"\",\"age\":40,\"pets\":[{\"name\":\"Pineapple\",\"type\":\"Cat\"},{\"name\":\"orange\",\"type\":\"Cat\"},{\"name\":\"Sam\",\"type\":\"Dog\"},{\"name\":\"Grape\",\"type\":\"Cat\"}]}, {\"name\":\"Samantha\",\"gender\":\" \",\"age\":40,\"pets\":[{\"name\":\"Banana\",\"type\":\"Cat\"}]}, {\"name\":\"Jennifer\",\"gender\":null,\"age\":18,\"pets\":[{\"name\":\"apple\",\"type\":\"Cat\"}]}]" }));
+
+            // act
+            servire.CatsByGender().Wait();
+
+            // assert
+            outputer.DidNotReceive().Output(Arg.Any<string>());
         }
     }
 }
