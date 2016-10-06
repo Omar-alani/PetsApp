@@ -200,5 +200,23 @@ namespace Pets.Core.Tests
                 outputer.Output("Pineapple");
             });
         }
+
+        [TestMethod]
+        public void when_data_has_null_or_empty_or_just_spaces_name_property_CatsByGender_should_handle_it_with_no_error_and_ignore_that_pet()
+        {
+            // arrange
+            var petApiClient = Substitute.For<IPetsApiClient>();
+            var outputer = Substitute.For<IOutputer>();
+
+            var servire = new PetsService(apiendpoint, outputer, petApiClient);
+
+            petApiClient.GetAllPetsOwners(apiendpoint).Returns(Task.FromResult(new PetsApiResponse { Success = true, Result = "[{\"name\":\"Fred\",\"gender\":\"Female\",\"age\":40,\"pets\":[{\"name\":\"\",\"type\":\"Cat\"},{\"name\":null,\"type\":\"Cat\"},{\"name\":\"Sam\",\"type\":\"Dog\"},{\"name\":\" \",\"type\":\"Cat\"}]}]" }));
+
+            // act
+            servire.CatsByGender().Wait();
+
+            // assert
+            outputer.DidNotReceive().Output(Arg.Any<string>());
+        }
     }
 }
