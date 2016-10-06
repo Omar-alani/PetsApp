@@ -44,7 +44,7 @@ namespace Pets.Core.Services
                     {
                         var catsByGender = petsOwners
                             .Where(o => !string.IsNullOrEmpty(o.Gender) && !string.IsNullOrWhiteSpace(o.Gender) && o.Pets != null && o.Pets.Any(p => p.Type == Constants.PetTypes.Cat))
-                            .GroupBy(o => o.Gender, o => o.Pets.Where(p => p.Type == Constants.PetTypes.Cat).Select(p => p.Name))
+                            .GroupBy(o => o.Gender, o => o.Pets.Where(p => p.Type == Constants.PetTypes.Cat).Select(p => p.Name), StringComparer.InvariantCultureIgnoreCase)
                             .Select(g => new { Gender = g.Key, Cats = g.SelectMany(n => n).OrderBy(n => n).ToList() })
                             .ToDictionary(r => r.Gender, r => r.Cats);
 

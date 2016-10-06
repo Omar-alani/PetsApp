@@ -174,5 +174,31 @@ namespace Pets.Core.Tests
             // assert
             outputer.DidNotReceive().Output(Arg.Any<string>());
         }
+
+        [TestMethod]
+        public void when_data_has_gender_property_with_case_insensitive_CatsByGender_should_ignore_caseinsensitive()
+        {
+            // arrange
+            var petApiClient = Substitute.For<IPetsApiClient>();
+            var outputer = Substitute.For<IOutputer>();
+
+            var servire = new PetsService(apiendpoint, outputer, petApiClient);
+
+            petApiClient.GetAllPetsOwners(apiendpoint).Returns(Task.FromResult(new PetsApiResponse { Success = true, Result = "[{\"name\":\"Fred\",\"gender\":\"female\",\"age\":40,\"pets\":[{\"name\":\"Pineapple\",\"type\":\"Cat\"},{\"name\":\"orange\",\"type\":\"Cat\"},{\"name\":\"Sam\",\"type\":\"Dog\"},{\"name\":\"Grape\",\"type\":\"Cat\"}]}, {\"name\":\"Samantha\",\"gender\":\"Female\",\"age\":40,\"pets\":[{\"name\":\"Banana\",\"type\":\"Cat\"}]}, {\"name\":\"Jennifer\",\"gender\":\"Female\",\"age\":18,\"pets\":[{\"name\":\"apple\",\"type\":\"Cat\"}]}]" }));
+
+            // act
+            servire.CatsByGender().Wait();
+
+            // assert
+            Received.InOrder(() =>
+            {
+                outputer.Output("female");
+                outputer.Output("apple");
+                outputer.Output("Banana");
+                outputer.Output("Grape");
+                outputer.Output("orange");
+                outputer.Output("Pineapple");
+            });
+        }
     }
 }
